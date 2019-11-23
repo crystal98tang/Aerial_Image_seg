@@ -1,7 +1,7 @@
 from utils import *
 
 # choose model
-model_name = "SDFCN"
+model_name = "FCN"
 
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
@@ -9,8 +9,8 @@ print("*"*10 + time_now + "*"*10)
 #
 
 ## Choose Devices
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
-run_mode = "train_GPUs"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
+run_mode = "train"
 #
 save_mode = "single"
 #

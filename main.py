@@ -1,13 +1,15 @@
 from args import *
 from data.dataset import *
 
-from models.SDFCN import *
-from models.Unet import *
-
 if model_name == "SDFCN":
+    from models.SDFCN import *
     model = SDFCN()
 elif model_name == "Unet":
+    from models.Unet import *
     model = Unet()
+elif model_name == "FCN":
+    from models.FCN import *
+    model = FCN_Vgg16_32s()
 
 if run_mode == "train":
     myGene = trainGenerator(5, train_data_dir,data_gen_args,save_to_dir = None)
