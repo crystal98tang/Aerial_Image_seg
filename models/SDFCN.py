@@ -1,6 +1,6 @@
 from models.utils import *
 
-def SDFCN(input_size = (256,256,3)):
+def SDFCN(input_size = (imageSize,imageSize,3)):
     inputs = Input(input_size)
     conv1_1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1_2 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1_1)

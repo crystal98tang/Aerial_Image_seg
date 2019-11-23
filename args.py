@@ -9,8 +9,8 @@ print("*"*10 + time_now + "*"*10)
 #
 
 ## Choose Devices
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
-run_mode = "train"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
+run_mode = "train_GPUs"
 #
 save_mode = "single"
 #

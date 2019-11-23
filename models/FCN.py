@@ -3,7 +3,7 @@ from models.utils import *
 from tensorflow.python.keras.regularizers import l2
 from models.BilinearUpSampling import *
 
-def FCN_Vgg16_32s(input_shape=(imageSize, imageSize, 3), weight_decay=0., batch_shape=None, classes=2):
+def FCN_Vgg16_32s(input_shape=(imageSize, imageSize, 3), weight_decay=1e-4, classes=2):
     img_input = Input(input_shape)
     # Block 1
     x = Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv1', kernel_regularizer=l2(weight_decay))(img_input)
