@@ -1,6 +1,8 @@
 from args import *
 from data.dataset import *
 
+
+model = None
 if model_name == "SDFCN":
     from models.SDFCN import *
     model = SDFCN()
@@ -10,6 +12,13 @@ elif model_name == "Unet":
 elif model_name == "FCN":
     from models.FCN import *
     model = FCN_Vgg16_32s()
+elif model_name == "DenseFCN":
+    from models.DenseFCN import *
+    model = DenseNet_FCN()
+
+if model is None:
+    print("Model choose error")
+    os._exit(0)
 
 if run_mode == "train":
     myGene = trainGenerator(5, train_data_dir,data_gen_args,save_to_dir = None)

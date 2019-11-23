@@ -43,6 +43,7 @@ def FCN_Vgg16_32s(input_shape=(imageSize, imageSize, 3), weight_decay=1e-4, clas
 
     x = BilinearUpSampling2D(size=(32, 32))(x)
 
-    model = Model(img_input, x)
+    model = Model(img_input, x, name='FCN-32')
 
     return model
+
