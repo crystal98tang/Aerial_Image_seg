@@ -2,7 +2,10 @@
 from tensorflow.python.keras.models import *
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.optimizers import *
-
+"""
+    Image Size
+"""
+imageSize = 256
 """
     ShortCutBlock Layer
 """

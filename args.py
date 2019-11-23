@@ -1,11 +1,16 @@
 from utils import *
-time_now = time.strftime("%Y_%m_%d__%H_%M")
+
+# choose model
+model_name = "SDFCN"
+
+# timestamp
+time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*"*10 + time_now + "*"*10)
 #
 
 ## Choose Devices
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
-run_mode = "train"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
+run_mode = "train_GPUs"
 #
 save_mode = "single"
 #
@@ -13,9 +18,9 @@ train_data_dir = "DataSet/train"
 #
 valid_data_dir = "DataSet/valid"
 #
-log_dir = "./logs/log_" + time_now
+log_dir = "./logs/log_" + model_name + time_now
 #
-saved_model = "SDFCN.hdf5"
+saved_model = model_name + ".hdf5"
 #
 print(saved_model)
 # training images preprocess args
