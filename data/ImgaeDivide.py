@@ -89,8 +89,8 @@ def init_box(mode, num, image_width, image_height, patch_size, overlay=0.3):
     if mode == 0:
         # stride and iteration
         stride = item_width * (1 - overlay)
-        x_iteration = (image_width // stride) - 1
-        y_iteration = (image_height // stride) - 1
+        x_iteration = int(image_width // stride) - 1
+        y_iteration = int(image_height // stride) - 1
 
         for j in range(0, y_iteration):
             for i in range(0, x_iteration):
