@@ -6,9 +6,10 @@ model_name = "SDFCN"
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
-itrs = 5
-steps = 150
-batchs = 5
+itrs = 10
+steps = 200
+batchs = 3
+print(str(itrs) + ' ' + str(steps) + ' ' + str(batchs))
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 run_mode = "train"
@@ -18,7 +19,7 @@ save_mode = "single"
 # Image Setting
 dataset = 'IAILD'   # select dataset
 read_image_mode = 'path'  # from path or file to read images
-global_image_size = 256     # source image size
+global_image_size = 512     # source image size
 global_image_channels = 3   # source image channels (RGB = 3/RGBN = 4)
 global_image_mode = 'rgb'   # source image mode (rgb / ?)
 global_label_classes = 2    # label classes
