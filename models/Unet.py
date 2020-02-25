@@ -1,7 +1,7 @@
 from models.utils import *
 
 
-def Unet(input_size=(256, 256, 3)):
+def Unet(input_size = (imageSize,imageSize,Channels)):
     inputs = Input(input_size)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)

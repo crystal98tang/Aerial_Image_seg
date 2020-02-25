@@ -2,6 +2,12 @@
 from tensorflow.python.keras.callbacks import ModelCheckpoint,TensorBoard
 from tensorflow.python.keras.utils import multi_gpu_model
 from tensorflow.python.keras.utils import multi_gpu_model
+#
+# from keras.callbacks import ModelCheckpoint,TensorBoard
+# from keras.utils import multi_gpu_model
+# from keras.utils import multi_gpu_model
+'''
+'''
 import numpy as np
 import time
 import os

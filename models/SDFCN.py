@@ -1,6 +1,6 @@
 from models.utils import *
 
-def SDFCN(input_size = (imageSize,imageSize,3)):
+def SDFCN(input_size = (imageSize,imageSize,Channels)):
     inputs = Input(input_size)
     conv1_1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1_2 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1_1)
@@ -26,7 +26,7 @@ def SDFCN(input_size = (imageSize,imageSize,3)):
     conv7_3 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv7_2)
 
     # softmax
-    conv8 = Conv2D(2, 1, activation='softmax')(conv7_3)
+    conv8 = Conv2D(Classes, 1, activation='softmax')(conv7_3)
 
     model = Model(inputs, conv8)
 
