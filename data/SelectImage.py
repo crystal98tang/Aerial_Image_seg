@@ -21,15 +21,14 @@ KindOfName = ['water', 'farmland', 'forest', 'built-up ', 'meadow']
 KindOfImage = [[], [], [], [], []]
 
 
-def select_image(src_path):
-    path = src_path
-    files = os.listdir(path)
-    print("find:" + str(files.__len__()))
-    for f in files:
+def select_image(src_label_path, src_image_path):
+    files_label = os.listdir(src_label_path)
+    print("find:" + str(files_label.__len__()))
+    for f in files_label:
         if f.endswith('.tif'):
-            print(os.path.join(src_path, f))
+            print(os.path.join(src_label_path, f))
             cnt = [0, 0, 0, 0, 0]
-            img_path = os.path.join(src_path, f)
+            img_path = os.path.join(src_label_path, f)
             img = imageio.imread(img_path)
             img //= 255
             height = img.shape[0]
@@ -56,6 +55,18 @@ def select_image(src_path):
             print(choose)
             KindOfImage[choose].append(img_path)
 
+            # To rename
+            new_file_name = str(choose) + '_' + str(KindOfImage[choose].__len__()) + '.tif'
+            # rename label
+            label_path = os.path.join(src_label_path, f)
+            new_file_path = os.path.join(src_label_path, new_file_name)
+            os.rename(label_path, new_file_path)
+            # rename image
+            file_name = f[:-10] + '.tif'    # label和image名不一样 少_label
+            image_path = os.path.join(src_image_path, file_name)
+            new_file_path = os.path.join(src_image_path, new_file_name)
+            os.rename(image_path, new_file_path)
+
 
 def save_info(list_file_path):
     i = 0
@@ -72,7 +83,7 @@ def read_info(list_file_path):
             KindOfImage[i].append(f.readlines())
             i += 1
 
-select_image('../DataSet/GID/label_5classes')
+select_image('../DataSet/GID/label_5classes','../DataSet/GID/image_RGB')
 save_info('../DataSet/GID/train_RGB')
 for i in range(KindOfImage.__len__()):
     print(KindOfImage[i].__len__(), end=' ')
