@@ -6,16 +6,15 @@ model_name = "SDFCN"
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
-itrs = 10
-steps = 200
-batchs = 3
-print(str(itrs) + ' ' + str(steps) + ' ' + str(batchs))
+itrs = 5
+steps = 150
+batchs = 1
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-run_mode = "train"
+run_mode = "test"   # train / train_GPUs / test
 mult_thread = False
 #
-save_mode = "single"
+save_mode = "single"    # single / full
 # Image Setting
 dataset = 'IAILD'   # select dataset
 read_image_mode = 'path'  # from path or file to read images
@@ -27,7 +26,7 @@ global_label_mode = 'grayscale'  # label image mode (grayscale / rgb)
 # Image Path
 if dataset == 'IAILD':
     train_data_dir = "DataSet/IAILD/train"
-    valid_data_dir = "DataSet/IAILD/valid"
+    valid_data_dir = "DataSet/IAILD/test_30"
 elif dataset == 'GID':
     src_image_data_dir = "DataSet/IAILD/image_RGB"
     src_label_data_dir = "DataSet/IAILD/label_5classes"
@@ -38,6 +37,7 @@ elif dataset == 'GID':
 log_dir = "./logs/log_" + model_name + time_now
 #
 saved_model = model_name + ".hdf5"
+saved_results_path = "result/" + model_name + "_" + time_now
 #
 print(saved_model)
 #

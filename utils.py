@@ -11,6 +11,7 @@ from tensorflow.python.keras.utils import multi_gpu_model
 import numpy as np
 import time
 import os
+import cv2
 
 #
 class ParallelModelCheckpoint(ModelCheckpoint):
