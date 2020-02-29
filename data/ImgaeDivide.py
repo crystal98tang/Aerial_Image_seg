@@ -2,10 +2,15 @@ import os
 import random
 import numpy as np
 import imageio
+from PIL import Image
 
 KindOfName = ['water', 'farmland', 'forest', 'built-up ', 'meadow']
+kindOfImage = ["0_","1_","2_","3_","4_"]
 KindOfImage = [[], [], [], [], []]
-
+train_list_image = None
+train_list_label = None
+test_list_image = None
+test_list_label = None
 
 def read_info(list_file_path):
     i = 0
@@ -29,18 +34,25 @@ def divide_dataset(data_path, train_dir, test_dir, num_each_image, patch_size):
     w = 5000
     h = 5000
     #EndTODO
-    box_list4train = init_box(1, w, h, patch_size)
-    box_list4test = init_box(0, w, h, patch_size)
+    box_list4train = init_box(1, 100, w, h, patch_size)
+    box_list4test = init_box(0, 100, w, h, patch_size)
     #FIXME:修改后更新divide_image调用参数
-    print("################Training Image################")
-    divide_image(data_path, train_dir, num_each_image, kind_of_image, box_list4train, mode="training")
+    # train_list_image = os.listdir(os.path.join(data_path, 'training'))
+    # train_list_label = os.listdir(os.path.join(data_path, 'training_label'))
+    test_list_image = os.listdir(os.path.join(data_path, 'testing'))
+    test_list_label = os.listdir(os.path.join(data_path, 'testing_label'))
+    # sum_train = train_list_image.__len__()
+    sum_test = test_list_image.__len__()
+    # print("################Training Image################")
+    # divide_image(train_list_image, train_list_label, data_path, train_dir, sum_train, box_list4train, mode="training")
     print("################Test Image################")
-    divide_image(data_path, test_dir, 3, kind_of_image, box_list4test, mode="testing")
+    sum_test = 3 # 一般测试时，3
+    divide_image(test_list_image, test_list_label, data_path, test_dir, sum_test, box_list4test, mode="testing")
     #EndFIXME
 
 
 #FIXME:适配多数据集
-def divide_image(data_path, save_dir, num_big_image, kinds, box_list,mode):
+def divide_image(a, b, data_path, save_dir, num_big_image, box_list, mode):
     """
     切割任务具体实现
     :param data_path:
@@ -53,21 +65,47 @@ def divide_image(data_path, save_dir, num_big_image, kinds, box_list,mode):
     """
     cur_count = 0
     for i in range(0, num_big_image):
-        for kind in kinds:
-            if mode == 'training':
-                img = np.array(imageio.imread(os.path.join(data_path,'training',"%s%d.tif"%(kind,i))))
-                valid = np.array(imageio.imread(os.path.join(data_path,'validation',"%s%d.tif"%(kind,i))))
-            elif mode == 'testing':
-                img = np.array(imageio.imread(os.path.join(data_path, 'testing', "%s%d.tif" % (kind, i))))
-                valid = np.array(imageio.imread(os.path.join(data_path, 'testing_label', "%s%d.tif" % (kind, i))))
-            else:
-                raise Exception("mode Error")
+        img = None
+        valid = None
+        str1 = a[i]
+        str2 = b[i]
+        if mode == 'training':
+            if str1 == str2:
+                img = np.array(imageio.imread(os.path.join(data_path, "training", a[i])))
+                valid = np.array(imageio.imread(os.path.join(data_path, "training_label", b[i])))
+        elif mode == 'testing':
+            if str1 == str2:
+                img = np.array(imageio.imread(os.path.join(data_path, "testing", a[i])))
+                valid = np.array(imageio.imread(os.path.join(data_path, "testing_label", b[i])))
+        else:
+            raise Exception("mode Error")
+        image_p = Image.fromarray(img)
+        valid_p = Image.fromarray(valid)
+        image_list = [np.array(image_p.crop(box)) for box in box_list]
+        valid_list = [np.array(valid_p.crop(box)) for box in box_list]
+        cur_count = save_patch_image(save_dir, image_list, valid_list, cur_count)
 
-            image_p = Image.fromarray(img)
-            valid_p = Image.fromarray(valid)
-            image_list = [np.array(image_p.crop(box)) for box in box_list]
-            valid_list = [np.array(valid_p.crop(box)) for box in box_list]
-            cur_count = save_patch_image(save_dir, image_list, valid_list, cur_count)
+
+# Saving Image
+def save_patch_image(save_dir, image_list, valid_list, c):
+    #TODO：在patch_path保存两张patch
+    image_path = os.path.join(save_dir, "image")
+    valid_path = os.path.join(save_dir, "label")
+    # dir exist
+    if not os.path.exists(image_path):
+        os.makedirs(image_path)
+    if not os.path.exists(valid_path):
+        os.makedirs(valid_path)
+    count = c
+    for image,annotation in zip(image_list,valid_list):
+        patch_image_file_path = os.path.join(image_path, str(count)+ '.tif')
+        patch_annotation_file_path = os.path.join(valid_path, str(count)+ '.tif')
+
+        imageio.imsave(patch_image_file_path, image)
+        imageio.imsave(patch_annotation_file_path, annotation)
+        count += 1
+
+    return count
 
 
 def init_box(mode, num, image_width, image_height, patch_size, overlay=0.3):
@@ -113,5 +151,5 @@ def init_box(mode, num, image_width, image_height, patch_size, overlay=0.3):
         return box_list
     return -1
 
-divide_dataset('images','temp_data/pitches/train','temp_data/pitches/test', 24)
+divide_dataset('G:\\Aerial_Image_seg_v0.1\\DataSet\\GID\\images', '../GID/train', '../GID/test', 24, 512)
 print("finish!")

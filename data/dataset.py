@@ -71,11 +71,10 @@ def trainGenerator_file(
         yield (img, mask)
 
 
-def testGenerator(test_path, num_image):  # flag_multi_class = False,target_size = (256,256)
+def testGenerator(imagelist, test_path, num_image):
     for i in range(num_image):
         # new
-        img = np.array(imageio.imread(os.path.join(test_path, "%d.tif" % i)))
-        # old # img = misc.imread(os.path.join(test_path,"%d.tif"%i),mode='RGB')
+        img = np.array(imageio.imread(os.path.join(test_path, imagelist[i])))
         img = img / 255
         # img = trans.resize(img,target_size)
         img = np.reshape(img, (1,) + img.shape)  # (1,256,256,3)
