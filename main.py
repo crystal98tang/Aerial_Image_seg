@@ -75,13 +75,14 @@ elif run_mode == "test":
     # num_image = imagelist.__len__()
     num_image = 100
     testGene = testGenerator(imagelist, image_path, num_image)
-    results = model.predict_generator(testGene, num_image, verbose=1, workers=2, use_multiprocessing=False)
+    results = model.predict_generator(testGene, num_image, verbose=1)
     # use_multiprocessing=True` is not supported on Windows
     # TODO:后处理
     import postprocess.test as post
+    # import postprocess.crf as crf
     os.makedirs(saved_results_path)
     out = 0
-    sum = 0.0
+    sum_1 = sum_2 = sum_3 = 0.0
     for i in range(num_image):
         #
         image = np.array(imageio.imread(os.path.join(image_path, imagelist[i])))
@@ -89,34 +90,77 @@ elif run_mode == "test":
         label = np.array(imageio.imread(os.path.join(label_path, labellist[i])))
         imageio.imwrite(os.path.join(saved_results_path, "%d_gt.tif" % i), label)
         label = label / 255 # 归一化
-        #
+        # pred score
         res = results[i]
-        th = 0.618
-        res[res < th] = 1
-        res[res < 1] = 0
-
+        # 单CRF
+        # crf_res = crf.CRFs(image, res)
+        # imageio.imwrite(os.path.join(saved_results_path, "%d_crf.tif" % i), image)
+        #############################
+        # 变整数
+        th = 0.5
+        # 反色
+        res = 1 - res
+        ############################
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        res = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel, iterations=3)
-        res = cv2.morphologyEx(res, cv2.MORPH_CLOSE, kernel, iterations=3)
+        k_itr = 3
+        # 单形态学变换 先开后闭
+        xt_oc_res = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel, iterations=k_itr)
+        xt_oc_res = cv2.morphologyEx(xt_oc_res, cv2.MORPH_CLOSE, kernel, iterations=k_itr)
+        xt_oc_res[xt_oc_res > th] = 1
+        xt_oc_res[xt_oc_res < th] = 0
+        xt_oc_res = xt_oc_res[:, :, 0]
+        imageio.imwrite(os.path.join(saved_results_path, "%d_2_xt_oc_res.tif" % i), xt_oc_res)
+        # 单形态学变换 先闭后开
+        xt_co_res = cv2.morphologyEx(res, cv2.MORPH_CLOSE, kernel, iterations=3)
+        xt_co_res = cv2.morphologyEx(xt_co_res, cv2.MORPH_OPEN, kernel, iterations=3)
+        xt_co_res[xt_co_res > th] = 1
+        xt_co_res[xt_co_res < th] = 0
+        xt_co_res = xt_co_res[:, :, 0]
+        imageio.imwrite(os.path.join(saved_results_path, "%d_2_xt_co_res.tif" % i), xt_co_res)
+        ############################
+        # # CRF+形态学 先开后闭
+        # crf_xt_oc_res = cv2.morphologyEx(crf_res, cv2.MORPH_OPEN, kernel, iterations=3)
+        # crf_xt_oc_res = cv2.morphologyEx(crf_xt_oc_res, cv2.MORPH_CLOSE, kernel, iterations=3)
+        # # CRF+形态学 先闭后开
+        # crf_xt_co_res = cv2.morphologyEx(crf_res, cv2.MORPH_CLOSE, kernel, iterations=3)
+        # crf_xt_co_res = cv2.morphologyEx(crf_xt_co_res, cv2.MORPH_OPEN, kernel, iterations=3)
+        # ###########################
+        # # 形态学 先开后闭+CRF
+        # xt_crf_oc_res = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel, iterations=3)
+        # xt_crf_oc_res = cv2.morphologyEx(xt_crf_oc_res, cv2.MORPH_CLOSE, kernel, iterations=3)
+        # crf_res = crf.CRFs(image, res)
+
         # dice
-        res = res[:,:,0]
-        dice = post.dc(label, res)
-        if dice >= 0.1:
-            sum += dice
+        res[res > th] = 1
+        res[res < th] = 0
+        res = res[:, :, 0]
+        dice_res = post.dc(label, res)
+        dice_1 = post.dc(label, xt_oc_res)
+        dice_2 = post.dc(label, xt_co_res)
+        if dice_res >= 0.3 and dice_1 >= 0.3 and dice_2 >= 0.3:
+            sum_1 += dice_res
+            sum_2 += dice_1
+            sum_3 += dice_2
         else:
             print(i)
             out += 1
         # IoU
         # print(post.mean_iou(label, res))
-
+        #
         imageio.imwrite(os.path.join(saved_results_path, "%d_image.tif" % i), image)
         imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.tif" % i), res)
 
-    print(sum / (num_image - out))
+    print(sum_1 / (num_image - out))
+    print(sum_2 / (num_image - out))
+    print(sum_3 / (num_image - out))
+
     #
     # if save_mode == "single":
     #     saveResult("temp_data/temp_test", results)
     # elif save_mode == "full":
     #     saveBigResult("temp_data/full", results, init_box, each_image_size, num)
 
-#
+def toSaveImage(saved_results_path, image, name, th):
+    image[image > th] = 1
+    image[image < th] = 0
+    imageio.imwrite(os.path.join(saved_results_path, "%d_2_%s.tif" % (i, name)), image[:, :, 0])

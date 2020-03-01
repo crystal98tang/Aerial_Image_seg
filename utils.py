@@ -12,6 +12,7 @@ import numpy as np
 import time
 import os
 import cv2
+import imageio
 
 #
 class ParallelModelCheckpoint(ModelCheckpoint):
@@ -42,3 +43,8 @@ def dice_ratio(preds, labels):
 #     time.sleep(0.06)
 # # 库tqdm
 # # 库progressbar
+
+def toSaveImage(saved_results_path, image, name, i,th):
+    image[image > th] = 1
+    image[image < th] = 0
+    imageio.imwrite(os.path.join(saved_results_path, "%d_2_%s.tif" % (i, name)), image)
