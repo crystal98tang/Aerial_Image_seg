@@ -11,7 +11,7 @@ elif model_name == "Unet":
     model = Unet()
 elif model_name == "FCN":
     from models.FCN import *
-    model = FCN_Vgg16_32s()
+    model = FCN_8()
 elif model_name == "DenseFCN":
     from models.DenseFCN import *
     # model = DenseNet_FCN()
