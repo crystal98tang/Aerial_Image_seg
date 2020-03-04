@@ -51,15 +51,3 @@ def dc(input1, input2):
     return dc
 
 
-def mean_iou(input1, input2):
-    y_true = input1
-    y_pred = input2
-    # 交集
-    a = [val for val in y_true if val in y_pred]
-    # a = y_true & y_pred
-    # 并集
-    b = numpy.array(list(set(y_true).union(set(y_pred))))
-    # b = y_true | y_pred
-    w1 = numpy.sum(a)
-    w2 = numpy.sum(b)
-

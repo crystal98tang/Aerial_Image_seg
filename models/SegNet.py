@@ -67,7 +67,7 @@ def SegNet(input_size=(imageSize, imageSize, Channels)):
     conv = Conv2D(256, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv)
     conv = BatchNormalization()(conv)
     conv = UpSampling2D(size=(2, 2))(conv)
-    conv = (conv)
+
     conv = Conv2D(128, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv)
     conv = BatchNormalization()(conv)
     conv = Conv2D(128, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv)

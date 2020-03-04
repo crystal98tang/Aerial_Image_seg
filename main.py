@@ -72,87 +72,114 @@ elif run_mode == "test":
     label_path = os.path.join(valid_data_dir, "label")
     imagelist = os.listdir(image_path)
     labellist = os.listdir(label_path)
-    # num_image = imagelist.__len__()
-    num_image = 100
-    testGene = testGenerator(imagelist, image_path, num_image)
-    results = model.predict_generator(testGene, num_image, verbose=1)
-    # use_multiprocessing=True` is not supported on Windows
-    # TODO:后处理
-    import postprocess.test as post
-    # import postprocess.crf as crf
-    os.makedirs(saved_results_path)
-    out = 0
-    sum_1 = sum_2 = sum_3 = 0.0
-    for i in range(num_image):
-        #
-        image = np.array(imageio.imread(os.path.join(image_path, imagelist[i])))
-        #
-        label = np.array(imageio.imread(os.path.join(label_path, labellist[i])))
-        imageio.imwrite(os.path.join(saved_results_path, "%d_gt.tif" % i), label)
-        label = label / 255 # 归一化
-        # pred score
-        res = results[i]
-        # 单CRF
-        # crf_res = crf.CRFs(image, res)
-        # imageio.imwrite(os.path.join(saved_results_path, "%d_crf.tif" % i), image)
-        #############################
-        # 变整数
-        th = 0.5
-        # 反色
-        res = 1 - res
-        ############################
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        k_itr = 3
-        # 单形态学变换 先开后闭
-        xt_oc_res = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel, iterations=k_itr)
-        xt_oc_res = cv2.morphologyEx(xt_oc_res, cv2.MORPH_CLOSE, kernel, iterations=k_itr)
-        xt_oc_res[xt_oc_res > th] = 1
-        xt_oc_res[xt_oc_res < th] = 0
-        xt_oc_res = xt_oc_res[:, :, 0]
-        imageio.imwrite(os.path.join(saved_results_path, "%d_2_xt_oc_res.tif" % i), xt_oc_res)
-        # 单形态学变换 先闭后开
-        xt_co_res = cv2.morphologyEx(res, cv2.MORPH_CLOSE, kernel, iterations=3)
-        xt_co_res = cv2.morphologyEx(xt_co_res, cv2.MORPH_OPEN, kernel, iterations=3)
-        xt_co_res[xt_co_res > th] = 1
-        xt_co_res[xt_co_res < th] = 0
-        xt_co_res = xt_co_res[:, :, 0]
-        imageio.imwrite(os.path.join(saved_results_path, "%d_2_xt_co_res.tif" % i), xt_co_res)
-        ############################
-        # # CRF+形态学 先开后闭
-        # crf_xt_oc_res = cv2.morphologyEx(crf_res, cv2.MORPH_OPEN, kernel, iterations=3)
-        # crf_xt_oc_res = cv2.morphologyEx(crf_xt_oc_res, cv2.MORPH_CLOSE, kernel, iterations=3)
-        # # CRF+形态学 先闭后开
-        # crf_xt_co_res = cv2.morphologyEx(crf_res, cv2.MORPH_CLOSE, kernel, iterations=3)
-        # crf_xt_co_res = cv2.morphologyEx(crf_xt_co_res, cv2.MORPH_OPEN, kernel, iterations=3)
-        # ###########################
-        # # 形态学 先开后闭+CRF
-        # xt_crf_oc_res = cv2.morphologyEx(res, cv2.MORPH_OPEN, kernel, iterations=3)
-        # xt_crf_oc_res = cv2.morphologyEx(xt_crf_oc_res, cv2.MORPH_CLOSE, kernel, iterations=3)
-        # crf_res = crf.CRFs(image, res)
+    # 全部
+    # sum_image = imagelist.__len__()
+    # batch_image = 50
+    # itr = sum_image // batch_image
+    # 手动部分
+    batch_image = 100
+    itr = 5
+    if not os.path.exists(saved_results_path):
+        os.makedirs(saved_results_path)
+    #
+    recall = []
+    pres = []
+    F_measure = []
+    iou = []
+    dice = []
+    for i in range(itr):
+        testGene = testGenerator(imagelist, batch_image, image_path, batch_image)
+        results = model.predict_generator(testGene, batch_image, verbose=1)
+        # use_multiprocessing=True` is not supported on Windows
+        tmp = 0
+        for k in range(i*batch_image, (i+1)*batch_image):
+            #
+            image = np.array(imageio.imread(os.path.join(image_path, imagelist[k])))
+            #
+            label = np.array(imageio.imread(os.path.join(label_path, labellist[k])))
 
-        # dice
-        res[res > th] = 1
-        res[res < th] = 0
-        res = res[:, :, 0]
-        dice_res = post.dc(label, res)
-        dice_1 = post.dc(label, xt_oc_res)
-        dice_2 = post.dc(label, xt_co_res)
-        if dice_res >= 0.3 and dice_1 >= 0.3 and dice_2 >= 0.3:
-            sum_1 += dice_res
-            sum_2 += dice_1
-            sum_3 += dice_2
-        else:
-            print(i)
-            out += 1
-        # IoU
-        # print(post.mean_iou(label, res))
-        #
-        imageio.imwrite(os.path.join(saved_results_path, "%d_image.tif" % i), image)
-        imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.tif" % i), res)
+            label_01 = label / 255  # 归一化
 
-    print(sum_1 / (num_image - out))
-    print(sum_2 / (num_image - out))
-    print(sum_3 / (num_image - out))
+            # 全黑无效
+            if label_01.max() != 1:
+                tmp += 1
+                continue
+
+            # pred score
+            res = results[tmp][:, :, 1]
+            tmp += 1
+            # 阈值
+            th = 1 - 0.618
+            # 单CRF
+            # crf_res = crf.CRFs(image, res)
+            #############################
+            # 形态学开闭
+            res_mor_oc = morph.morph(res, operation='oc', vary=True, th=th)
+            #############################
+            # 形态学闭开
+            res_mor_co = morph.morph(res, operation='co', vary=True, th=th)
+            #############################
+            res = vary(res, th)
+            # 全黑无效
+            if res.max() != 1:
+                continue
+            # # Recall
+            recall_orgin = eva.Recall(res, label_01)
+            recall.append(recall_orgin)
+            # recall_oc = eva.Recall(res_mor_oc, label_01)  # 结果不好
+            # recall_co = eva.Recall(res_mor_co, label_01)
+            # # Percision
+            prec_orgin = eva.Precision(res, label_01)
+            pres.append(prec_orgin)
+            # prec_oc = eva.Precision(res_mor_oc, label_01)  # 结果不好
+            # prec_co = eva.Precision(res_mor_co, label_01)
+            # # F-score
+            F_orgin = eva.F_measure(recall_orgin, prec_orgin)
+            F_measure.append(F_orgin)
+            # F_oc = eva.F_measure(recall_oc, prec_oc)  # 结果不好
+            # F_co = eva.F_measure(recall_co, prec_co)
+            # IoU
+            IoU_orgin = eva.mean_iou(res, label_01)
+            iou.append(IoU_orgin)
+            # IoU_oc = eva.mean_iou(res_mor_oc, label_01)  # 结果不好
+            # IoU_co = eva.mean_iou(res_mor_co, label_01)
+            # dice
+            dice_orgin = eva.dice(res, label_01)
+            dice.append(dice_orgin)
+            # dice_oc = eva.dice(res_mor_oc, label_01)  # 结果不好
+            # dice_co = eva.dice(res_mor_co, label_01)
+            print(imagelist[k])
+            print("-"*10)
+
+            # # dice
+            # res = res[:, :, 0]
+            # dice_res = post.dc(label, res)
+            # dice_1 = post.dc(label, xt_oc_res)
+            # dice_2 = post.dc(label, xt_co_res)
+            # if dice_res >= 0.3 and dice_1 >= 0.3 and dice_2 >= 0.3:
+            #     sum_1 += dice_res
+            #     sum_2 += dice_1
+            #     sum_3 += dice_2
+            # else:
+            #     print(i)
+            #     out += 1
+            # IoU
+            # print(post.mean_iou(label, res))
+
+            # Out
+            imageio.imwrite(os.path.join(saved_results_path, "%d_image.tif" % k), image)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_gt.tif" % k), label)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.tif" % k), res)
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_oc_predict.tif" % k), res_mor_oc) # 结果不好
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.tif" % k), res_mor_co)
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.tif" % k), crf)
+
+    import GUI.result as ts
+    ts.box_show(5,recall,pres,F_measure,iou,dice)
+
+    # print(sum_1 / (batch_image - out))
+    # print(sum_2 / (batch_image - out))
+    # print(sum_3 / (batch_image - out))
 
     #
     # if save_mode == "single":

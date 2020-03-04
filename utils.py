@@ -14,6 +14,9 @@ import os
 import cv2
 import imageio
 
+# import postprocess.crf as crf
+import evaluate.utils as eva
+import postprocess.Morphological as morph
 #
 class ParallelModelCheckpoint(ModelCheckpoint):
     def __init__(self,model,filepath, monitor='loss', verbose=0,
@@ -44,7 +47,13 @@ def dice_ratio(preds, labels):
 # # 库tqdm
 # # 库progressbar
 
+
+def vary(img, th):
+    img[img > th] = 1
+    img[img < th] = 0
+    return img
+
+
 def toSaveImage(saved_results_path, image, name, i,th):
-    image[image > th] = 1
-    image[image < th] = 0
+    image = vary(image, th)
     imageio.imwrite(os.path.join(saved_results_path, "%d_2_%s.tif" % (i, name)), image)
