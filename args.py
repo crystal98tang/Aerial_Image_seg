@@ -1,7 +1,7 @@
 from utils import *
 
 # choose model
-model_name = "SDFCN"
+model_name = "SegNet"
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
@@ -11,7 +11,7 @@ steps = 150
 batchs = 1
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-run_mode = "test"   # train / train_GPUs / test
+run_mode = "train"   # train / train_GPUs / test
 mult_thread = False
 #
 save_mode = "single"    # single / full

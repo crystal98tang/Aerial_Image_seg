@@ -71,9 +71,10 @@ def trainGenerator_file(
         yield (img, mask)
 
 
-def testGenerator(imagelist, test_path, num_image):
-    for i in range(num_image):
+def testGenerator(imagelist, start_num, test_path, num_image):
+    for i in range(start_num, start_num + num_image):
         # new
+        print(os.path.join(test_path, imagelist[i]))
         img = np.array(imageio.imread(os.path.join(test_path, imagelist[i])))
         img = img / 255
         # img = trans.resize(img,target_size)
