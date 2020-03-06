@@ -1,7 +1,7 @@
 from utils import *
 
 # choose model
-model_name = "SegNet"
+model_name = "FCN"
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)

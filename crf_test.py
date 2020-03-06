@@ -1,6 +1,7 @@
 from args import *
 from data.dataset import *
-
+# from pudb import set_trace
+# set_trace()
 
 model = None
 if model_name == "SDFCN":
@@ -81,6 +82,8 @@ if run_mode == "test":
             th = 1 - 0.618
             # 单CRF
             crf_res = crf.CRFs(image, res)
+            crf_res = vary(crf_res, th)
+            #
             res = vary(res, th)
             # 全黑无效
             if res.max() != 1:
@@ -88,28 +91,28 @@ if run_mode == "test":
             # # Recall
             recall_orgin = eva.Recall(res, label_01)
             eval_p['Recall'].append(recall_orgin)
-            recall_crf = eva.Recall(res, label_01)
+            recall_crf = eva.Recall(crf_res, label_01)
             eval_crf['Recall'].append(recall_crf)
             # # Percision
             prec_orgin = eva.Precision(res, label_01)
             eval_p['Prescision'].append(prec_orgin)
-            recall_crf = eva.Recall(res, label_01)
-            eval_crf['Recall'].append(recall_crf)
+            prec_crf = eva.Precision(crf_res, label_01)
+            eval_crf['Prescision'].append(prec_crf)
             # # F-score
             F_orgin = eva.F_measure(recall_orgin, prec_orgin)
             eval_p['F_measure'].append(F_orgin)
-            recall_crf = eva.Recall(res, label_01)
-            eval_crf['Recall'].append(recall_crf)
+            F_crf = eva.F_measure(recall_crf, prec_crf)
+            eval_crf['F_measure'].append(F_crf)
             # IoU
             IoU_orgin = eva.mean_iou(res, label_01)
             eval_p['IoU'].append(IoU_orgin)
-            recall_crf = eva.Recall(res, label_01)
-            eval_crf['Recall'].append(recall_crf)
+            IoU_crf = eva.mean_iou(crf_res, label_01)
+            eval_crf['IoU'].append(IoU_crf)
             # dice
             dice_orgin = eva.dice(res, label_01)
             eval_p['Dice'].append(dice_orgin)
-            recall_crf = eva.Recall(res, label_01)
-            eval_crf['Recall'].append(recall_crf)
+            dice_crf = eva.dice(crf_res, label_01)
+            eval_crf['Dice'].append(dice_crf)
 
             print(imagelist[k])
             print("-" * 10)
@@ -125,5 +128,4 @@ if run_mode == "test":
     import GUI.result as ts
 
     ts.box_show(eval_p)
-    ts.box_show(eval_oc)
-    ts.box_show(eval_co)
+    ts.box_show(eval_crf)

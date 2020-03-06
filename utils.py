@@ -14,7 +14,7 @@ import os
 import cv2
 import imageio
 
-# import postprocess.crf as crf
+import postprocess.crf as crf
 import evaluate.utils as eva
 import postprocess.Morphological as morph
 #
