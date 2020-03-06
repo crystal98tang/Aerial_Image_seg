@@ -86,7 +86,7 @@ def dice(input1, input2):
     except ZeroDivisionError:
         print("Warning: dice error")
         dice = 0
-    print("Dice_new:%.5f" % dice)
+    print("Dice_new:%.2f" % dice)
     return dice
 
 
@@ -138,3 +138,12 @@ def dc(input1, input2):
         dc = 0.0
     print("Dice_old:%.5f" % dc)
     return dc
+
+
+def mean_variance(list):
+    for i in list:
+        v = np.var(list[i])
+        avg = np.average(list[i])
+        low = avg - v
+        high = avg + v
+        print("%0.3f---%0.3f" %(low, high))

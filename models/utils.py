@@ -34,7 +34,7 @@ def shortcutblock(filter):
         conv_fine = Conv2D(filter, 1, padding='same')(inputs)
         conv_fine = BatchNormalization()(conv_fine)
 
-        merge = Add()([conv_fine, conv_main])
+        merge = Add()([conv_main, conv_fine])
 
         conv = Activation('relu')(merge)
 

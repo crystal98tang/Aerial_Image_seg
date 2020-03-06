@@ -20,14 +20,8 @@ def easy_show(
     plt.show()
 
 
-def box_show(
-        num = None,
-        Recall = None,
-        Prescision = None,
-        F_measure = None,
-        IoU = None,
-        Dice = None):
+def box_show(dict):
     #
-    df = pd.DataFrame({'Recall':Recall,'Prescision':Prescision,'F_measure':F_measure,'IoU':IoU,'Dice':Dice})  # 先生成0-1之间的5*4维度数据，再装入4列DataFrame中
+    df = pd.DataFrame(dict)  # 先生成0-1之间的5*4维度数据，再装入4列DataFrame中
     df.boxplot()  # 也可用plot.box()
     plt.show()

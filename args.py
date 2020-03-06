@@ -11,14 +11,17 @@ steps = 150
 batchs = 1
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-run_mode = "train"   # train / train_GPUs / test
+run_mode = "test"   # train / train_GPUs / test
 mult_thread = False
-#
+# test
+test_mode = 'manual'    # manual / auto
+global_test_image_num = 10
+global_test_itr = 1
 save_mode = "single"    # single / full
 # Image Setting
 dataset = 'IAILD'   # select dataset
 read_image_mode = 'path'  # from path or file to read images
-global_image_size = 512     # source image size
+global_image_size = 256    # source image size
 global_image_channels = 3   # source image channels (RGB = 3/RGBN = 4)
 global_image_mode = 'rgb'   # source image mode (rgb / ?)
 global_label_classes = 2    # label classes
@@ -26,7 +29,7 @@ global_label_mode = 'grayscale'  # label image mode (grayscale / rgb)
 # Image Path
 if dataset == 'IAILD':
     train_data_dir = "DataSet/IAILD/train"
-    valid_data_dir = "DataSet/IAILD/test_30"
+    valid_data_dir = "DataSet/IAILD/test_0"
 elif dataset == 'GID':
     src_image_data_dir = "DataSet/IAILD/image_RGB"
     src_label_data_dir = "DataSet/IAILD/label_5classes"
@@ -36,7 +39,7 @@ elif dataset == 'GID':
 #
 log_dir = "./logs/log_" + model_name + time_now
 #
-saved_model = model_name + ".hdf5"
+saved_model = model_name + "_" + str(global_image_size) + ".hdf5"
 saved_results_path = "result/" + model_name + "_" + time_now
 #
 print(saved_model)
