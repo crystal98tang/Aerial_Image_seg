@@ -88,6 +88,7 @@ elif run_mode == "test":
     eval_p = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     eval_oc = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     eval_co = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_crf = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     #
     sum_pixel = global_image_size * global_image_size
     for i in range(itr):
@@ -116,9 +117,10 @@ elif run_mode == "test":
             res = results[tmp][:, :, 1]
             tmp += 1
             # 阈值
-            th = 1 - 0.618
+            th = 0.5
             # 单CRF
-            # crf_res = crf.CRFs(image, res)
+            crf_res = crf.CRFs(image, res)
+            crf_res = vary(crf_res, th)
             #############################
             # 形态学开闭
             res_mor_oc = morph.morph(res, operation='oc', vary=True, th=th)
@@ -137,6 +139,8 @@ elif run_mode == "test":
             eval_oc['Recall'].append(recall_oc)
             recall_co = eva.Recall(res_mor_co, label_01)
             eval_co['Recall'].append(recall_co)
+            recall_crf = eva.Recall(crf_res, label_01)
+            eval_crf['Recall'].append(recall_crf)
             # # Percision
             prec_orgin = eva.Precision(res, label_01)
             eval_p['Prescision'].append(prec_orgin)
@@ -144,6 +148,8 @@ elif run_mode == "test":
             eval_oc['Prescision'].append(prec_oc)
             prec_co = eva.Precision(res_mor_co, label_01)
             eval_co['Prescision'].append(prec_co)
+            prec_crf = eva.Precision(crf_res, label_01)
+            eval_crf['Prescision'].append(prec_crf)
             # # F-score
             F_orgin = eva.F_measure(recall_orgin, prec_orgin)
             eval_p['F_measure'].append(F_orgin)
@@ -151,6 +157,8 @@ elif run_mode == "test":
             eval_oc['F_measure'].append(F_oc)
             F_co = eva.F_measure(recall_co, prec_co)
             eval_co['F_measure'].append(F_co)
+            F_crf = eva.F_measure(recall_crf, prec_crf)
+            eval_crf['F_measure'].append(F_crf)
             # IoU
             IoU_orgin = eva.mean_iou(res, label_01)
             eval_p['IoU'].append(IoU_orgin)
@@ -158,6 +166,8 @@ elif run_mode == "test":
             eval_oc['IoU'].append(IoU_oc)
             IoU_co = eva.mean_iou(res_mor_co, label_01)
             eval_co['IoU'].append(IoU_co)
+            IoU_crf = eva.mean_iou(crf_res, label_01)
+            eval_crf['IoU'].append(IoU_crf)
             # dice
             dice_orgin = eva.dice(res, label_01)
             eval_p['Dice'].append(dice_orgin)
@@ -165,6 +175,8 @@ elif run_mode == "test":
             eval_oc['Dice'].append(dice_oc)
             dice_co = eva.dice(res_mor_co, label_01)
             eval_co['Dice'].append(dice_co)
+            dice_crf = eva.dice(crf_res, label_01)
+            eval_crf['Dice'].append(dice_crf)
 
             print(imagelist[k])
             print("-" * 10)
@@ -175,23 +187,21 @@ elif run_mode == "test":
             imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.tif" % k), res)
             imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_oc_predict.tif" % k), res_mor_oc) # 结果不好
             imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.tif" % k), res_mor_co)
-            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.tif" % k), crf)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.tif" % k), crf_res)
 
     #均值方差
     eva.mean_variance(eval_p)
     eva.mean_variance(eval_p)
     eva.mean_variance(eval_p)
+    eva.mean_variance(eval_crf)
     #
     import GUI.result as ts
-    ts.box_show(eval_p)
-    ts.box_show(eval_oc)
-    ts.box_show(eval_co)
-    # print(sum_1 / (batch_image - out))
-    # print(sum_2 / (batch_image - out))
-    # print(sum_3 / (batch_image - out))
-    #均值方差
+    ts.box_show(eval_p, saved_results_path, "origin")
+    ts.box_show(eval_oc, saved_results_path, "open-close")
+    ts.box_show(eval_co, saved_results_path, "close-open")
+    ts.box_show(eval_crf, saved_results_path, "crf")
 
-    #
+    # 合并
     # if save_mode == "single":
     #     saveResult("temp_data/temp_test", results)
     # elif save_mode == "full":

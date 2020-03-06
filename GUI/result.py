@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 def easy_show(
         num = None,
@@ -20,8 +21,10 @@ def easy_show(
     plt.show()
 
 
-def box_show(dict):
+def box_show(dict, path, title):
     #
-    df = pd.DataFrame(dict)  # 先生成0-1之间的5*4维度数据，再装入4列DataFrame中
+    df = pd.DataFrame(dict)  # 装入DataFrame中
     df.boxplot()  # 也可用plot.box()
+    plt.set_title(title, fontsize=12, color='black')
+    plt.savefig(os.path.join(path, "%s.jpg" % title))
     plt.show()

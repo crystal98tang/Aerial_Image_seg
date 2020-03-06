@@ -57,3 +57,11 @@ def vary(img, th):
 def toSaveImage(saved_results_path, image, name, i,th):
     image = vary(image, th)
     imageio.imwrite(os.path.join(saved_results_path, "%d_2_%s.tif" % (i, name)), image)
+
+
+def file_exist(path):
+    if os.path.exists(path):
+        if input("Already exist model file, Overwrite?") == "Y":
+            pass
+        else:
+            exit(1)

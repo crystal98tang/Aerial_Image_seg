@@ -6,17 +6,18 @@ model_name = "FCN"
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
-itrs = 5
-steps = 150
-batchs = 1
+itrs = 1000
+steps = 100
+batchs = 10
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 run_mode = "test"   # train / train_GPUs / test
 mult_thread = False
 # test
 test_mode = 'manual'    # manual / auto
-global_test_image_num = 10
-global_test_itr = 1
+if test_mode == 'manual':
+    global_test_image_num = 10
+    global_test_itr = 1
 save_mode = "single"    # single / full
 # Image Setting
 dataset = 'IAILD'   # select dataset
@@ -36,10 +37,12 @@ elif dataset == 'GID':
     train_data_dir = "DataSet/IAILD/train_RGB"
     valid_data_dir = "DataSet/IAILD/vaild_RGB"
     label_data_dir = "DataSet/IAILD/label_RGB"
-#
+# log
 log_dir = "./logs/log_" + model_name + time_now
 #
-saved_model = model_name + "_" + str(global_image_size) + ".hdf5"
+saved_model = "./model_save/" + model_name + "_" + str(global_image_size) + ".hdf5"
+file_exist(saved_model)
+
 saved_results_path = "result/" + model_name + "_" + time_now
 #
 print(saved_model)

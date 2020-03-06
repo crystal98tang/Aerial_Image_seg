@@ -146,4 +146,4 @@ def mean_variance(list):
         avg = np.average(list[i])
         low = avg - v
         high = avg + v
-        print("%0.3f---%0.3f" %(low, high))
+        print("%0.3f---%0.3f" % (low, high))

@@ -112,3 +112,4 @@ data/__pycache__/
 logs/
 models/__pycache__/
 testImage/
+/model_save/
