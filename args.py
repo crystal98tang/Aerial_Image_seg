@@ -4,6 +4,7 @@ from utils import *
 model_name = "FCN"
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
+time_start = time.time()
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
 itrs = 1000

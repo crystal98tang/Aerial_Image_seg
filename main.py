@@ -207,6 +207,10 @@ elif run_mode == "test":
     # elif save_mode == "full":
     #     saveBigResult("temp_data/full", results, init_box, each_image_size, num)
 
+#finish
+delta_time = time.time() - time_start
+print(delta_time)
+
 
 def toSaveImage(saved_results_path, image, name, th):
     image[image > th] = 1
