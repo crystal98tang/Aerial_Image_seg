@@ -20,7 +20,7 @@ def Recall(predict, label):
     except ZeroDivisionError:
         print("Warning: Recall error")
         recall = 0
-    print("recall:%.2f" % recall)
+    print("recall:%.2f%%" % (recall*100))
     return recall
 
 
@@ -43,7 +43,7 @@ def Precision(predict, label):
     except ZeroDivisionError:
         print("Warning: precision error")
         precision = 0
-    print("precision:%.2f" % precision)
+    print("precision:%.2f%%" % (precision*100))
     return precision
 
 
@@ -53,7 +53,7 @@ def F_measure(recall, precision):
     except ZeroDivisionError:
         print("Warning: F error")
         F = 0.0
-    print("F:%.2f" % F)
+    print("F:%.2f%%" % (F*100))
     return F
 
 
@@ -70,7 +70,7 @@ def mean_iou(input1, input2):
     except ZeroDivisionError:
         print("Warning: IoU error")
         IoU = 0
-    print("IoU:%.2f" % IoU)
+    print("IoU:%.2f%%" % (IoU*100))
     return IoU
 
 
@@ -86,7 +86,7 @@ def dice(input1, input2):
     except ZeroDivisionError:
         print("Warning: dice error")
         dice = 0
-    print("Dice_new:%.2f" % dice)
+    print("Dice_new:%.2f%%" % (dice*100))
     return dice
 
 
@@ -136,7 +136,7 @@ def dc(input1, input2):
         dc = 2. * intersection / float(size_i1 + size_i2)
     except ZeroDivisionError:
         dc = 0.0
-    print("Dice_old:%.5f" % dc)
+    print("Dice_old:%.5f%%" % dc)
     return dc
 
 
@@ -144,6 +144,5 @@ def mean_variance(list):
     for i in list:
         v = np.var(list[i])
         avg = np.average(list[i])
-        low = avg - v
-        high = avg + v
-        print("%0.3f---%0.3f" % (low, high))
+        print("%s:%.3f±%.3f" % (i, avg, v))
+    print('-'*10)

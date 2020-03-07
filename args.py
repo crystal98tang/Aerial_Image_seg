@@ -1,7 +1,7 @@
 from utils import *
 
 # choose model
-model_name = "FCN"
+model_name = "SegNet"
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 time_start = time.time()
@@ -15,7 +15,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 run_mode = "test"   # train / train_GPUs / test
 mult_thread = False
 # test
-test_mode = 'manual'    # manual / auto
+test_mode = 'auto'    # manual / auto
 if test_mode == 'manual':
     global_test_image_num = 10
     global_test_itr = 1
@@ -42,7 +42,7 @@ elif dataset == 'GID':
 log_dir = "./logs/log_" + model_name + time_now
 #
 saved_model = "./model_save/" + model_name + "_" + str(global_image_size) + ".hdf5"
-file_exist(saved_model)
+file_exist(run_mode, saved_model)
 
 saved_results_path = "result/" + model_name + "_" + time_now
 #
