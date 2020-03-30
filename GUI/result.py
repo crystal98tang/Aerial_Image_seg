@@ -25,6 +25,7 @@ def box_show(dict, path, title):
     #
     df = pd.DataFrame(dict)  # 装入DataFrame中
     df.boxplot()  # 也可用plot.box()
-    plt.set_title(title, fontsize=12, color='black')
+    plt.title(title, fontsize=12, color='black')
     plt.savefig(os.path.join(path, "%s.jpg" % title))
-    plt.show()
+#     plt.show()
+    plt.close('all')

@@ -75,7 +75,7 @@ elif run_mode == "test":
     labellist = os.listdir(label_path)
     if test_mode == 'auto':
         sum_image = imagelist.__len__()
-        batch_image = 50
+        batch_image = 100
         itr = sum_image // batch_image
     elif test_mode == 'manual':
         # 手动部分
@@ -94,6 +94,7 @@ elif run_mode == "test":
     eval_crf = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     #
     sum_pixel = global_image_size * global_image_size
+    out = 0
     for i in range(itr):
         testGene = testGenerator(imagelist, i * batch_image, image_path, batch_image)
         results = model.predict_generator(testGene, batch_image, verbose=1)
@@ -111,10 +112,12 @@ elif run_mode == "test":
             # 全黑无效 && <5%无效
             if label_01.max() != 1:
                 tmp += 1
+                out += 1
                 continue
             tmp_pixel = np.count_nonzero(label_01)
             if (tmp_pixel / sum_pixel) < 0.05:
                 tmp += 1
+                out += 1
                 continue
             # pred score
             res = results[tmp][:, :, 1]
@@ -134,6 +137,7 @@ elif run_mode == "test":
             res = vary(res, th)
             # 全黑无效
             if res.max() != 1:
+                out += 1
                 continue
             # # Recall
             recall_orgin = eva.Recall(res, label_01)
@@ -193,9 +197,13 @@ elif run_mode == "test":
             imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.jpg" % k), crf_res)
 
     #均值方差
+    print("origin")
     eva.mean_variance(eval_p)
-    eva.mean_variance(eval_p)
-    eva.mean_variance(eval_p)
+    print("oc")
+    eva.mean_variance(eval_oc)
+    print("co")
+    eva.mean_variance(eval_co)
+    print("crf")
     eva.mean_variance(eval_crf)
     #
     import GUI.result as ts
@@ -209,6 +217,11 @@ elif run_mode == "test":
     #     saveResult("temp_data/temp_test", results)
     # elif save_mode == "full":
     #     saveBigResult("temp_data/full", results, init_box, each_image_size, num)
+
+    #finish
+    delta_time = time.time() - time_start
+    print("delta_time" + str(delta_time))
+    print("sum_image==" + str(batch_image * itr - out))
 
 
 def toSaveImage(saved_results_path, image, name, th):
