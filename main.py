@@ -5,6 +5,9 @@ model = None
 if model_name == "SDFCN":
     from models.SDFCN import *
     model = SDFCN()
+elif model_name == "MRDFCN":
+    from models.MRDFCN import *
+    model = MRDFCN()
 elif model_name == "Unet":
     from models.Unet import *
     model = Unet()
@@ -182,12 +185,12 @@ elif run_mode == "test":
             print("-" * 10)
 
             # Out
-            imageio.imwrite(os.path.join(saved_results_path, "%d_image.tif" % k), image)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_gt.tif" % k), label)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.tif" % k), res)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_oc_predict.tif" % k), res_mor_oc) # 结果不好
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.tif" % k), res_mor_co)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.tif" % k), crf_res)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_image.jpg" % k), image)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_gt.jpg" % k), label)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.jpg" % k), res)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_oc_predict.jpg" % k), res_mor_oc) # 结果不好
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.jpg" % k), res_mor_co)
+            imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.jpg" % k), crf_res)
 
     #均值方差
     eva.mean_variance(eval_p)

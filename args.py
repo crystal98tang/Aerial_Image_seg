@@ -1,14 +1,16 @@
 from utils import *
 
 # choose model
-model_name = "FCN"
+model_name = "MRDFCN"
+# choose platform
+pf = "linux"    # windows / linux
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
 itrs = 1000
 steps = 100
-batchs = 10
+batchs = 5
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 run_mode = "test"   # train / train_GPUs / test
@@ -41,7 +43,8 @@ elif dataset == 'GID':
 log_dir = "./logs/log_" + model_name + time_now
 #
 saved_model = "./model_save/" + model_name + "_" + str(global_image_size) + ".hdf5"
-file_exist(saved_model)
+if run_mode is not "test":
+    file_exist(saved_model)
 
 saved_results_path = "result/" + model_name + "_" + time_now
 #

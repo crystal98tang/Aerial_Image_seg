@@ -113,3 +113,4 @@ logs/
 models/__pycache__/
 testImage/
 /model_save/
+/.idea
