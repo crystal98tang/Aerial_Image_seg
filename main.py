@@ -55,17 +55,17 @@ if run_mode == "train":
                             callbacks=[model_checkpoint, TensorBoard(log_dir=log_dir,
                                                                      write_grads=1, write_images=1)],
                             shuffle=True, use_multiprocessing=False)
-
-elif run_mode == "train_GPUs":
-    myGene = trainGenerator(batchs, train_data_dir, data_gen_args, save_to_dir=None)
-    parallel_model = multi_gpu_model(model, gpus=2)
-    checkpoint = ParallelModelCheckpoint(model, filepath=saved_model)  # 解决多GPU运行下保存模型报错的问题
-    model_checkpoint = ModelCheckpoint(filepath=saved_model, monitor='loss', verbose=1, save_best_only=False)
-    parallel_model.compile(optimizer=Adam(lr=1.0e-4), loss='categorical_crossentropy', metrics=['accuracy'])
-    parallel_model.fit_generator(myGene, steps_per_epoch=steps, epochs=itrs, verbose=2,
-                                 callbacks=[model_checkpoint, TensorBoard(log_dir=log_dir,
-                                                                          write_grads=1, write_images=1)],
-                                 shuffle=True, workers=2, use_multiprocessing=True)  #
+# TODO: no GPUs drivers
+# elif run_mode == "train_GPUs":
+    # myGene = trainGenerator(batchs, train_data_dir, data_gen_args, save_to_dir=None)
+    # parallel_model = multi_gpu_model(model, gpus=2)
+    # checkpoint = ParallelModelCheckpoint(model, filepath=saved_model)  # 解决多GPU运行下保存模型报错的问题
+    # model_checkpoint = ModelCheckpoint(filepath=saved_model, monitor='loss', verbose=1, save_best_only=False)
+    # parallel_model.compile(optimizer=Adam(lr=1.0e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+    # parallel_model.fit_generator(myGene, steps_per_epoch=steps, epochs=itrs, verbose=2,
+    #                              callbacks=[model_checkpoint, TensorBoard(log_dir=log_dir,
+    #                                                                       write_grads=1, write_images=1)],
+    #                              shuffle=True, workers=2, use_multiprocessing=True)  #
 
 elif run_mode == "test":
     model.load_weights(saved_model)
@@ -95,6 +95,7 @@ elif run_mode == "test":
     #
     sum_pixel = global_image_size * global_image_size
     out = 0
+    time_start = time.time()
     for i in range(itr):
         testGene = testGenerator(imagelist, i * batch_image, image_path, batch_image)
         results = model.predict_generator(testGene, batch_image, verbose=1)

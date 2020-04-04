@@ -28,10 +28,10 @@ def shortcutblock(filter):
         conv_main = Conv2D(filter, 1, padding='same')(inputs)
         conv_main = Conv2D(filter, 3, padding='same')(conv_main)
         conv_main = Conv2D(filter, 1, padding='same')(conv_main)
-        conv_main = BatchNormalization()(conv_main)
+        conv_main = BatchNormalization()(conv_main, training=False)
 
         conv_fine = Conv2D(filter, 1, padding='same')(inputs)
-        conv_fine = BatchNormalization()(conv_fine)
+        conv_fine = BatchNormalization()(conv_fine, training=False)
 
         merge = Add()([conv_main, conv_fine])
 

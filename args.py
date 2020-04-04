@@ -8,7 +8,7 @@ pf = "linux"    # windows / linux
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
-itrs = 1000
+itrs = 100
 steps = 100
 batchs = 5
 # Choose Devices
@@ -40,11 +40,11 @@ elif dataset == 'GID':
     valid_data_dir = "DataSet/IAILD/vaild_RGB"
     label_data_dir = "DataSet/IAILD/label_RGB"
 # log
-log_dir = "./logs/log_" + model_name + time_now
+log_dir = "logs/log_" + model_name + time_now
 #
-saved_model = "./model_save/" + model_name + "_" + str(global_image_size) + ".hdf5"
-if run_mode is not "test":
-    file_exist(saved_model)
+saved_model = "model_save/" + model_name + "_" + str(global_image_size) + ".hdf5"
+
+file_exist(run_mode, saved_model)
 
 saved_results_path = "result/" + model_name + "_" + time_now
 #
