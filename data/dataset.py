@@ -32,6 +32,7 @@ def trainGenerator_path(
     train_generator = zip(image_generator, mask_generator)
 
     for (img, mask) in train_generator:
+        show(img, mask)
         img, mask = adjust_data(img, mask, classes)
         yield (img, mask)
 

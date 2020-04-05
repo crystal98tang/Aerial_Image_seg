@@ -17,6 +17,7 @@ import imageio
 import postprocess.crf as crf
 import evaluate.utils as eva
 import postprocess.Morphological as morph
+from postprocess.merge import merge_list_big, merge_single_big
 #
 class ParallelModelCheckpoint(ModelCheckpoint):
     def __init__(self,model,filepath, monitor='loss', verbose=0,
@@ -53,6 +54,8 @@ def vary(img, th):
     img[img < th] = 0
     return img
 
+def vary_plus(img):
+    return 0
 
 def toSaveImage(saved_results_path, image, name, i,th):
     image = vary(image, th)

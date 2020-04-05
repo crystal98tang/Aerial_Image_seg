@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import imageio
+import matplotlib.pyplot as plt
 """"""
 # If can not work, add "tensorflow.python."
 from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
@@ -52,3 +53,14 @@ def adjust_data(img, mask, classes):
 
     mask = to_categorical(mask, num_classes=classes)
     return img,mask
+
+# 数据增广 处理后
+def show(img, mask):
+    k = 0
+    for i in img:
+        imageio.imwrite(os.path.join("test_img/", "%d_img.jpg" % k), i.astype(np.uint8))
+        k += 1
+    k = 0
+    for i in mask:
+        imageio.imwrite(os.path.join("test_mask/", "%d_mask.jpg" % k), i.astype(np.uint8))
+        k += 1

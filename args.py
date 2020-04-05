@@ -18,8 +18,8 @@ mult_thread = False
 # test
 test_mode = 'manual'    # manual / auto
 if test_mode == 'manual':
-    global_test_image_num = 10
-    global_test_itr = 1
+    global_test_image_num = 18
+    global_test_itr = 18
 save_mode = "single"    # single / full
 # Image Setting
 dataset = 'IAILD'   # select dataset
@@ -32,7 +32,7 @@ global_label_mode = 'grayscale'  # label image mode (grayscale / rgb)
 # Image Path
 if dataset == 'IAILD':
     train_data_dir = "DataSet/IAILD/train"
-    valid_data_dir = "DataSet/IAILD/test_0"
+    valid_data_dir = "DataSet/IAILD/test_0"   # /media/tyk/汤昱焜的移动硬盘/SDFCN-base-on-unet-code/IAILD/test_875
 elif dataset == 'GID':
     src_image_data_dir = "DataSet/IAILD/image_RGB"
     src_label_data_dir = "DataSet/IAILD/label_5classes"
@@ -59,5 +59,5 @@ data_gen_args = dict(rotation_range=45,  # 随机角度 应为整数
                      # zoom_range=0.05,
                      horizontal_flip=True,  # 随机水平翻转
                      vertical_flip=True,  # 随机垂直翻转
-                     brightness_range=[0, 1],  # 选择亮度偏移值的范围。
-                     fill_mode='nearest')
+                     brightness_range=[0.5,1.5],  # 选择亮度偏移值的范围。
+                     fill_mode='constant')

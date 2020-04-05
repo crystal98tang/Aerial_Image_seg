@@ -92,111 +92,131 @@ elif run_mode == "test":
     eval_oc = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     eval_co = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     eval_crf = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_crf_co = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
     #
     sum_pixel = global_image_size * global_image_size
     out = 0
     time_start = time.time()
+    #####
+    mark = np.zeros([5000, 5000, 1])
+    #####
     for i in range(itr):
         testGene = testGenerator(imagelist, i * batch_image, image_path, batch_image)
         results = model.predict_generator(testGene, batch_image, verbose=1)
         # use_multiprocessing=True` is not supported on Windows
         tmp = 0
-
+        # 原始
+        mark = merge_list_big(mark, results, i, 0, 256)
         for k in range(i * batch_image, (i + 1) * batch_image):
-            #
+        #     #
             image = np.array(imageio.imread(os.path.join(image_path, imagelist[k])))
-            #
+        #     #
             label = np.array(imageio.imread(os.path.join(label_path, labellist[k])))
-
-            label_01 = label / 255  # 归一化
-
-            # 全黑无效 && <5%无效
-            if label_01.max() != 1:
-                tmp += 1
-                out += 1
-                continue
-            tmp_pixel = np.count_nonzero(label_01)
-            if (tmp_pixel / sum_pixel) < 0.05:
-                tmp += 1
-                out += 1
-                continue
-            # pred score
-            res = results[tmp][:, :, 1]
-            tmp += 1
-            # 阈值
-            th = 0.5
-            # 单CRF
-            crf_res = crf.CRFs(image, res)
-            crf_res = vary(crf_res, th)
-            #############################
-            # 形态学开闭
-            res_mor_oc = morph.morph(res, operation='oc', vary=True, th=th)
-            #############################
-            # 形态学闭开
-            res_mor_co = morph.morph(res, operation='co', vary=True, th=th)
-            #############################
-            res = vary(res, th)
-            # 全黑无效
-            if res.max() != 1:
-                out += 1
-                continue
-            # # Recall
-            recall_orgin = eva.Recall(res, label_01)
-            eval_p['Recall'].append(recall_orgin)
-            recall_oc = eva.Recall(res_mor_oc, label_01)  # 结果不好
-            eval_oc['Recall'].append(recall_oc)
-            recall_co = eva.Recall(res_mor_co, label_01)
-            eval_co['Recall'].append(recall_co)
-            recall_crf = eva.Recall(crf_res, label_01)
-            eval_crf['Recall'].append(recall_crf)
-            # # Percision
-            prec_orgin = eva.Precision(res, label_01)
-            eval_p['Prescision'].append(prec_orgin)
-            prec_oc = eva.Precision(res_mor_oc, label_01)  # 结果不好
-            eval_oc['Prescision'].append(prec_oc)
-            prec_co = eva.Precision(res_mor_co, label_01)
-            eval_co['Prescision'].append(prec_co)
-            prec_crf = eva.Precision(crf_res, label_01)
-            eval_crf['Prescision'].append(prec_crf)
-            # # F-score
-            F_orgin = eva.F_measure(recall_orgin, prec_orgin)
-            eval_p['F_measure'].append(F_orgin)
-            F_oc = eva.F_measure(recall_oc, prec_oc)  # 结果不好
-            eval_oc['F_measure'].append(F_oc)
-            F_co = eva.F_measure(recall_co, prec_co)
-            eval_co['F_measure'].append(F_co)
-            F_crf = eva.F_measure(recall_crf, prec_crf)
-            eval_crf['F_measure'].append(F_crf)
-            # IoU
-            IoU_orgin = eva.mean_iou(res, label_01)
-            eval_p['IoU'].append(IoU_orgin)
-            IoU_oc = eva.mean_iou(res_mor_oc, label_01)  # 结果不好
-            eval_oc['IoU'].append(IoU_oc)
-            IoU_co = eva.mean_iou(res_mor_co, label_01)
-            eval_co['IoU'].append(IoU_co)
-            IoU_crf = eva.mean_iou(crf_res, label_01)
-            eval_crf['IoU'].append(IoU_crf)
-            # dice
-            dice_orgin = eva.dice(res, label_01)
-            eval_p['Dice'].append(dice_orgin)
-            dice_oc = eva.dice(res_mor_oc, label_01)  # 结果不好
-            eval_oc['Dice'].append(dice_oc)
-            dice_co = eva.dice(res_mor_co, label_01)
-            eval_co['Dice'].append(dice_co)
-            dice_crf = eva.dice(crf_res, label_01)
-            eval_crf['Dice'].append(dice_crf)
-
-            print(imagelist[k])
-            print("-" * 10)
-
-            # Out
+        #
+        #     label_01 = label / 255  # 归一化
+        #
+        #     # 全黑无效 && <5%无效
+        #     if label_01.max() != 1:
+        #         tmp += 1
+        #         out += 1
+        #         continue
+        #     tmp_pixel = np.count_nonzero(label_01)
+        #     if (tmp_pixel / sum_pixel) < 0.05:
+        #         tmp += 1
+        #         out += 1
+        #         continue
+        #     # pred score
+        #     res = results[tmp][:, :, 1]
+        #     tmp += 1
+        #     # 阈值
+        #     th = 0.5
+        #     # 单CRF
+        #     crf_res = crf.CRFs(image, res)
+        #     # CRF + 闭 + 开
+        #     crf_co_res = morph.morph(crf_res, operation='co', vary=True, th=th)
+        #     #
+        #     crf_res = vary(crf_res, th)
+        #     #############################
+        #     # 形态学开闭
+        #     res_mor_oc = morph.morph(res, operation='oc', vary=True, th=th)
+        #     #############################
+        #     # 形态学闭开
+        #     res_mor_co = morph.morph(res, operation='co', vary=True, th=th)
+        #     #############################
+        #     res = vary(res, th)
+        #     # 全黑无效
+        #     if res.max() != 1:
+        #         out += 1
+        #         continue
+        #     # # Recall
+        #     recall_orgin = eva.Recall(res, label_01)
+        #     eval_p['Recall'].append(recall_orgin)
+        #     recall_oc = eva.Recall(res_mor_oc, label_01)  # 结果不好
+        #     eval_oc['Recall'].append(recall_oc)
+        #     recall_co = eva.Recall(res_mor_co, label_01)
+        #     eval_co['Recall'].append(recall_co)
+        #     recall_crf = eva.Recall(crf_res, label_01)
+        #     eval_crf['Recall'].append(recall_crf)
+        #     recall_crf_co = eva.Recall(crf_co_res, label_01)
+        #     eval_crf_co['Recall'].append(recall_crf_co)
+        #     # # Percision
+        #     prec_orgin = eva.Precision(res, label_01)
+        #     eval_p['Prescision'].append(prec_orgin)
+        #     prec_oc = eva.Precision(res_mor_oc, label_01)  # 结果不好
+        #     eval_oc['Prescision'].append(prec_oc)
+        #     prec_co = eva.Precision(res_mor_co, label_01)
+        #     eval_co['Prescision'].append(prec_co)
+        #     prec_crf = eva.Precision(crf_res, label_01)
+        #     eval_crf['Prescision'].append(prec_crf)
+        #     prec_crf_co = eva.Precision(crf_co_res, label_01)
+        #     eval_crf_co['Prescision'].append(prec_crf_co)
+        #     # # F-score
+        #     F_orgin = eva.F_measure(recall_orgin, prec_orgin)
+        #     eval_p['F_measure'].append(F_orgin)
+        #     F_oc = eva.F_measure(recall_oc, prec_oc)  # 结果不好
+        #     eval_oc['F_measure'].append(F_oc)
+        #     F_co = eva.F_measure(recall_co, prec_co)
+        #     eval_co['F_measure'].append(F_co)
+        #     F_crf = eva.F_measure(recall_crf, prec_crf)
+        #     eval_crf['F_measure'].append(F_crf)
+        #     F_crf_co = eva.F_measure(recall_crf_co, prec_crf_co)
+        #     eval_crf_co['F_measure'].append(F_crf_co)
+        #     # IoU
+        #     IoU_orgin = eva.mean_iou(res, label_01)
+        #     eval_p['IoU'].append(IoU_orgin)
+        #     IoU_oc = eva.mean_iou(res_mor_oc, label_01)  # 结果不好
+        #     eval_oc['IoU'].append(IoU_oc)
+        #     IoU_co = eva.mean_iou(res_mor_co, label_01)
+        #     eval_co['IoU'].append(IoU_co)
+        #     IoU_crf = eva.mean_iou(crf_res, label_01)
+        #     eval_crf['IoU'].append(IoU_crf)
+        #     IoU_crf_co = eva.mean_iou(crf_co_res, label_01)
+        #     eval_crf_co['IoU'].append(IoU_crf_co)
+        #     # dice
+        #     dice_orgin = eva.dice(res, label_01)
+        #     eval_p['Dice'].append(dice_orgin)
+        #     dice_oc = eva.dice(res_mor_oc, label_01)  # 结果不好
+        #     eval_oc['Dice'].append(dice_oc)
+        #     dice_co = eva.dice(res_mor_co, label_01)
+        #     eval_co['Dice'].append(dice_co)
+        #     dice_crf = eva.dice(crf_res, label_01)
+        #     eval_crf['Dice'].append(dice_crf)
+        #     dice_crf_co = eva.dice(crf_co_res, label_01)
+        #     eval_crf_co['Dice'].append(dice_crf_co)
+        #
+        #     print(imagelist[k])
+        #     print("-" * 10)
+        #
+        #     # Out
             imageio.imwrite(os.path.join(saved_results_path, "%d_image.jpg" % k), image)
             imageio.imwrite(os.path.join(saved_results_path, "%d_gt.jpg" % k), label)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.jpg" % k), res)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_oc_predict.jpg" % k), res_mor_oc) # 结果不好
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.jpg" % k), res_mor_co)
-            imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.jpg" % k), crf_res)
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_predict.jpg" % k), res)
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_oc_predict.jpg" % k), res_mor_oc) # 结果不好
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.jpg" % k), res_mor_co)
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.jpg" % k), crf_res)
+            # imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_co_predict.jpg" % k), crf_co_res)
 
+    imageio.imwrite(os.path.join(saved_results_path, "big_predict.jpg"), mark)
     #均值方差
     print("origin")
     eva.mean_variance(eval_p)
@@ -206,12 +226,15 @@ elif run_mode == "test":
     eva.mean_variance(eval_co)
     print("crf")
     eva.mean_variance(eval_crf)
+    print("crf_co")
+    eva.mean_variance(eval_crf_co)
     #
     import GUI.result as ts
     ts.box_show(eval_p, saved_results_path, "origin")
     ts.box_show(eval_oc, saved_results_path, "open-close")
     ts.box_show(eval_co, saved_results_path, "close-open")
     ts.box_show(eval_crf, saved_results_path, "crf")
+    ts.box_show(eval_crf_co, saved_results_path, "crf_co")
 
     # 合并
     # if save_mode == "single":
