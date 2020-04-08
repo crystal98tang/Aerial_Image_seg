@@ -1,13 +1,75 @@
 import numpy as np
 
 
-def Recall(predict, label):
+def RecPreF(predict, label, size):
+    # 0 / 1 二分图
+    B_seg = 0
+    I_unseg = 0
+    I_wseg = 0
+    #
+    height = size
+    weight = size
+    #
+    for x in range(0, height):
+        for y in range(0, weight):
+            if predict[x, y] == 1 and label[x, y] == 1:
+                B_seg += 1
+            elif label[x, y] == 1 and predict[x, y] == 0:
+                I_unseg += 1
+            elif label[x, y] == 0 and predict[x, y] == 1:
+                I_wseg += 1
+    try:
+        recall = B_seg / (B_seg + I_unseg)
+        precision = B_seg / (B_seg + I_wseg)
+        F = 2.0 * recall * precision / (recall + precision)
+    except ZeroDivisionError:
+        print("Warning: Recall_Precision_F error")
+        recall = 0
+        precision = 0
+        F = 0.0
+    print("recall:%.2f%%" % (recall * 100))
+    print("precision:%.2f%%" % (precision * 100))
+    print("F:%.2f%%" % (F * 100))
+    print("---")
+    return recall,precision,F
+
+
+def IouDice(y_pred, y_true):
+    interArea = np.multiply(y_true, y_pred)  # 交集
+    tem = y_true + y_pred
+    unionArea = tem - interArea  # 并集
+
+    w1 = np.sum(interArea)
+    w2 = np.sum(unionArea)
+
+    size_i1 = np.count_nonzero(y_pred)
+    size_i2 = np.count_nonzero(y_true)
+
+    try:
+        IoU = w1 / w2
+    except ZeroDivisionError:
+        print("Warning: IoU error")
+        IoU = 0
+
+    try:
+        dice = w1 * 2. / float(size_i1 + size_i2)
+    except ZeroDivisionError:
+        print("Warning: dice error")
+        dice = 0
+
+    print("IoU:%.2f%%" % (IoU * 100))
+    print("Dice:%.2f%%" % (dice * 100))
+    print("---")
+    return IoU, dice
+
+
+def Recall(predict, label, size):
     # 0 / 1 二分图
     B_seg = 0
     I_unseg = 0
     #
-    height = predict.shape[0]
-    weight = predict.shape[1]
+    height = size
+    weight = size
     #
     for x in range(0, height):
         for y in range(0, weight):
@@ -24,13 +86,13 @@ def Recall(predict, label):
     return recall
 
 
-def Precision(predict, label):
+def Precision(predict, label, size):
     # 0 / 1 二分图
     B_seg = 0
     I_wseg = 0
     #
-    height = predict.shape[0]
-    weight = predict.shape[1]
+    height = size
+    weight = size
     #
     for x in range(0, height):
         for y in range(0, weight):
@@ -57,9 +119,7 @@ def F_measure(recall, precision):
     return F
 
 
-def mean_iou(input1, input2):
-    y_true = input2
-    y_pred = input1
+def mean_iou(y_pred, y_true):
     interArea = np.multiply(y_true, y_pred)  # 交集
     tem = y_true + y_pred
     unionArea = tem - interArea  # 并集
@@ -74,13 +134,11 @@ def mean_iou(input1, input2):
     return IoU
 
 
-def dice(input1, input2):
-    y_true = input2
-    y_pred = input1
+def dice(y_pred, y_true):
     interArea = np.multiply(y_true, y_pred)  # 交集
     w1 = np.sum(interArea)
-    size_i1 = np.count_nonzero(input1)
-    size_i2 = np.count_nonzero(input2)
+    size_i1 = np.count_nonzero(y_pred)
+    size_i2 = np.count_nonzero(y_true)
     try:
         dice = w1 * 2. / float(size_i1 + size_i2)
     except ZeroDivisionError:

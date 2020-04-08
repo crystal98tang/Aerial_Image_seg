@@ -16,11 +16,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 run_mode = "test"   # train / train_GPUs / test
 mult_thread = False
 # test
-test_mode = 'manual'    # manual / auto
+test_mode = 'auto'    # manual / auto
+overlay = 0
 if test_mode == 'manual':
     global_test_image_num = 18
     global_test_itr = 18
-save_mode = "single"    # single / full
+save_mode = "full"    # single / full
 # Image Setting
 dataset = 'IAILD'   # select dataset
 read_image_mode = 'path'  # from path or file to read images
@@ -32,7 +33,9 @@ global_label_mode = 'grayscale'  # label image mode (grayscale / rgb)
 # Image Path
 if dataset == 'IAILD':
     train_data_dir = "DataSet/IAILD/train"
-    valid_data_dir = "DataSet/IAILD/test_0"   # /media/tyk/汤昱焜的移动硬盘/SDFCN-base-on-unet-code/IAILD/test_875
+    valid_data_dir = "DataSet/IAILD/test_" + str((int)(overlay*100))   # /media/tyk/汤昱焜的移动硬盘/SDFCN-base-on-unet-code/IAILD/test_875
+    big_image_path = "origin_Dataset/testing"
+    big_label_path = "origin_Dataset/testing_label"
 elif dataset == 'GID':
     src_image_data_dir = "DataSet/IAILD/image_RGB"
     src_label_data_dir = "DataSet/IAILD/label_5classes"
