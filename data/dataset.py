@@ -75,8 +75,8 @@ def trainGenerator_file(
 def testGenerator(imagelist, start_num, test_path, num_image):
     for i in range(start_num, start_num + num_image):
         # new
-        print("func:" + str(i))
-        print(os.path.join(test_path, imagelist[i]))
+#         print("func:" + str(i))
+#         print(os.path.join(test_path, imagelist[i]))
         img = np.array(imageio.imread(os.path.join(test_path, imagelist[i])))
         img = img / 255
         # img = trans.resize(img,target_size)

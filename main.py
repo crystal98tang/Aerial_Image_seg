@@ -102,11 +102,11 @@ elif run_mode == "test":
     if not os.path.exists(saved_results_path):
         os.makedirs(saved_results_path)
     #
-    eval_p = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
-    eval_oc = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
-    eval_co = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
-    eval_crf = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
-    eval_crf_co = {'Recall': [], 'Prescision': [], 'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_p = {'Prescision': [], 'Recall': [],  'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_oc = {'Prescision': [], 'Recall': [],  'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_co = {'Prescision': [], 'Recall': [],  'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_crf = {'Prescision': [], 'Recall': [],  'F_measure': [], 'IoU': [], 'Dice': []}
+    eval_crf_co = {'Prescision': [], 'Recall': [],  'F_measure': [], 'IoU': [], 'Dice': []}
     #
     sum_pixel = global_image_size * global_image_size
     out = 0
@@ -117,7 +117,7 @@ elif run_mode == "test":
         mark = np.zeros([tr_size, tr_size, 2])
         for i in range(big_i * itr , (big_i + 1) * itr):
             testGene = testGenerator(imagelist, i * batch_image, image_path, batch_image)
-            results = model.predict_generator(testGene, batch_image, verbose=1)
+            results = model.predict_generator(testGene, batch_image, verbose=2)
             # use_multiprocessing=True` is not supported on Windows
             tmp = 0
             # 原始概率图
