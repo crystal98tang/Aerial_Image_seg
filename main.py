@@ -83,7 +83,7 @@ elif run_mode == "test":
     if test_mode == 'auto':
         # TODO: 自动计算不同overlap下每行瓦片数
         stride = global_image_size * (1 - overlay)
-        times = int(5000 // stride) - 1
+        times = int(5000 // stride) - int((global_image_size - stride) // stride) - 1
         sum_image = imagelist.__len__()
         batch_image = times
         itr = times
