@@ -1,7 +1,7 @@
 from utils import *
 
 # choose model
-model_name = "MRDFCN"
+model_name = "FCN"
 # choose platform
 pf = "windows"    # windows / linux
 # timestamp
