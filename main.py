@@ -7,7 +7,10 @@ if model_name == "SDFCN":
     model = SDFCN()
 elif model_name == "MRDFCN":
     from models.MRDFCN import *
-    model = MRDFCN()
+    model = MRDFCN_4s()
+elif model_name == "MRDFCN_noSC":
+    from models.MRDFCN_noshortcut import *
+    model = MRDFCN_noSC()
 elif model_name == "Unet":
     from models.Unet import *
     model = Unet()
@@ -24,6 +27,8 @@ if model is None:
     print("Model choose error")
     os._exit(1)
 
+model.summary()
+
 if run_mode == "train":
     # Generator
     myGene = None
@@ -32,28 +37,27 @@ if run_mode == "train":
             batchs, train_data_dir, data_gen_args, image_color_mode=args.global_image_mode,
             mask_color_mode=args.global_label_mode, target_size=(args.global_image_size, args.global_image_size),
             classes=global_label_classes)
-    elif read_image_mode == 'file':
-        # FIXME:file读取尚未完成
-        myGene = trainGenerator_file(
-            batchs, train_data_dir, data_gen_args, image_color_mode=args.global_image_mode,
-            mask_color_mode=args.global_label_mode, target_size=(args.global_image_size, args.global_image_size))
+    # elif read_image_mode == 'file':
+    #     # FIXME:file读取尚未完成
+        # myGene = trainGenerator_file(
+        #     batchs, train_data_dir, data_gen_args, image_color_mode=args.global_image_mode,
+        #     mask_color_mode=args.global_label_mode, target_size=(args.global_image_size, args.global_image_size))
     # Tensorboard
     model_checkpoint = ModelCheckpoint(
         filepath=saved_model, monitor='loss', verbose=1, save_best_only=False
     )
     # model compile
     model.compile(
-        optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy']
+        optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy', metric_precision, metric_recall, metric_F1score]
     )
     if mult_thread:
         model.fit_generator(myGene, steps_per_epoch=steps, epochs=itrs, verbose=2,
-                            callbacks=[model_checkpoint, TensorBoard(log_dir=log_dir,
-                                                                     write_grads=1, write_images=1)],
+                            callbacks=[model_checkpoint, TensorBoard(log_dir=log_dir)],
                             shuffle=True, workers=2, use_multiprocessing=True)
     else:
         model.fit_generator(myGene, steps_per_epoch=steps, epochs=itrs, verbose=2,
                             callbacks=[model_checkpoint, TensorBoard(log_dir=log_dir,
-                                                                     write_grads=1, write_images=1)],
+                                                                     write_grads=True,write_graph=True,write_images=True)],
                             shuffle=True, use_multiprocessing=False)
 # TODO: no GPUs drivers
 # elif run_mode == "train_GPUs":
@@ -89,7 +93,7 @@ elif run_mode == "test":
         itr = times
         sum_big = 5
         # 拼接后大小
-        tr_size = int(stride * times)
+        tr_size = int(stride * times + global_image_size - stride)
     elif test_mode == 'manual':
         # 手动部分 1张
         sum_big = 1
@@ -232,7 +236,6 @@ elif run_mode == "test":
                     # imageio.imwrite(os.path.join(saved_results_path, "%d_2_mor_co_predict.jpg" % k), res_mor_co)
                     # imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_predict.jpg" % k), crf_res)
                     # imageio.imwrite(os.path.join(saved_results_path, "%d_2_crf_co_predict.jpg" % k), crf_co_res)
-
         if save_mode == 'full':
             print(bigimagelist[big_i])
             image = np.array(imageio.imread(os.path.join(big_image_path, bigimagelist[big_i])))[:tr_size, :tr_size, :]
@@ -240,16 +243,16 @@ elif run_mode == "test":
             label_01 = label / 255  # 归一化
             th = 0.6
             mark = mark[:, :, 1]
-            # 单CRF
+            # # 单CRF
             crf_res = crf.CRFs(image, mark, tr_size)
-            # CRF + 闭开
+            # # CRF + 闭开
             crf_co_res = morph.morph(crf_res, operation='co', vary=True, th=th)
             #############################
-            # 形态学开闭
-            res_mor_oc = morph.morph(mark, operation='oc', vary=True, th=th)    # 结果不好
-            #############################
-            # 形态学闭开
-            res_mor_co = morph.morph(mark, operation='co', vary=True, th=th)
+            # # 形态学开闭
+            # res_mor_oc = morph.morph(mark, operation='oc', vary=True, th=th)    # 结果不好
+            # #############################
+            # # 形态学闭开
+            # res_mor_co = morph.morph(mark, operation='co', vary=True, th=th)
             #############################
             res = vary(mark, th)
             # # Recall - Precision - F
@@ -301,7 +304,6 @@ elif run_mode == "test":
             print(bigimagelist[big_i])
             print("-" * 10)
 
-            imageio.imwrite(os.path.join(saved_results_path, "big_predict.jpg"), mark)
             imageio.imwrite(os.path.join(saved_results_path, "%s_image.jpg" % bigimagelist[big_i]), image)
             imageio.imwrite(os.path.join(saved_results_path, "%s_gt.jpg" % bigimagelist[big_i]), label)
             imageio.imwrite(os.path.join(saved_results_path, "%s_2_predict.jpg" % bigimagelist[big_i]), res)

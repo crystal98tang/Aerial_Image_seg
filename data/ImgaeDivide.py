@@ -81,7 +81,7 @@ def save_patch_image(save_dir, image_list, valid_list, c):
 
     return count
 
-def init_box(mode, num, image_width, image_height, patch_size, overlay=0.875):
+def init_box(mode, num, image_width, image_height, patch_size, overlay=0.5):
     """
     初始化剪切盒子
     :param mode: 0-顺序位移 1-随机位移
@@ -124,6 +124,6 @@ def init_box(mode, num, image_width, image_height, patch_size, overlay=0.875):
         return box_list
     return -1
 
-divide_dataset('../origin_Dataset', '../DataSet/IAILD/train', '../DataSet/IAILD/test_875', kindOfImage)
+divide_dataset('../origin_Dataset', '../DataSet/IAILD/train', '../DataSet/IAILD/test_50', kindOfImage)
 print("finish!")
 

@@ -1,30 +1,36 @@
+# -*- coding: utf-8 -*-
 import numpy as np
-from skimage import exposure,data
-import imageio
+import sys
 import matplotlib.pyplot as plt
+import cv2
 
-img = np.array(imageio.imread("../testImage/0.tif"))
-gt = np.array(imageio.imread("../testImage/0_gt.tif"))
+from pylab import *
+mpl.rcParams['font.sans-serif'] = ['SimHei']
 
-# plt.draw(img)
-# plt.pause(4)# 间隔的秒数： 4s
-# plt.draw(gt)
-# plt.pause(4)# 间隔的秒数： 4s
-# #
-hist1=np.histogram(img, bins=2)   #用numpy包计算直方图
-print(hist1)
-#
-plt.figure("hist")
-arr=img.flatten() #将二维数组序列化成一维数组。是按行序列，如mat=[[1 2 3 4 5 6]] 经过 mat.flatten()后，就变成了 mat=[1 2 3 4 5 6]
-n, bins, patches = plt.hist(arr, bins=256, density=1,edgecolor='None',facecolor='red')
-plt.draw()
-plt.pause(1)# 间隔的秒数： 4s
-#
-ar=img[:,:,0].flatten()
-plt.hist(ar, bins=256, density=1,facecolor='r',edgecolor='r')
-ag=img[:,:,1].flatten()
-plt.hist(ag, bins=256, density=1, facecolor='g',edgecolor='g')
-ab=img[:,:,2].flatten()
-plt.hist(ab, bins=256, density=1, facecolor='b',edgecolor='b')
-plt.draw()
-plt.pause(1)# 间隔的秒数： 4s
+def calcGrayHist(image):
+    rows, cols = image.shape
+    grayHist = np.zeros([256], np.uint64)
+    for r in range(rows):
+        for c in range(cols):
+            grayHist[image[r][c]] += 1
+
+    return grayHist
+
+
+if __name__ == "__main__":
+    #if len(sys.argv) > 1:
+    #    image = cv2.imread(sys.argv[1], cv2.IMREAD_GRAYSCALE)
+    #else:
+    #    print("sys.argv null")
+    image = cv2.imread("G:/Aerial_Image_seg_v1.0/test_img/test_img.jpg", cv2.IMREAD_GRAYSCALE)
+
+    grayHist = calcGrayHist(image)
+
+    x_range = range(256)
+    plt.plot(x_range, grayHist, 'r', linewidth=1, c='red')
+    y_maxValue = np.max(grayHist)
+    plt.axis([0, 255, 0, y_maxValue])
+    plt.xlabel(U"灰度值")
+    plt.ylabel(U"像素数")
+    plt.show()
+

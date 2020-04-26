@@ -1,5 +1,7 @@
 from data.utils import *
 
+# init
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 
 # For a path
 def trainGenerator_path(
@@ -32,7 +34,20 @@ def trainGenerator_path(
     train_generator = zip(image_generator, mask_generator)
 
     for (img, mask) in train_generator:
-        show(img, mask)
+        # show(img, mask)
+        for i in img:
+            # 降噪
+            i = cv2.GaussianBlur(i, (5, 5), 1)
+            # show_single(i)
+            # 直方图
+            b, g, r = cv2.split(i.astype(np.uint8))
+            b = clahe.apply(b)
+            g = clahe.apply(g)
+            r = clahe.apply(r)
+            i = cv2.merge([b, g, r])
+            # show_single(i)
+        #
+        # show(img, mask)
         img, mask = adjust_data(img, mask, classes)
         yield (img, mask)
 
@@ -75,8 +90,8 @@ def trainGenerator_file(
 def testGenerator(imagelist, start_num, test_path, num_image):
     for i in range(start_num, start_num + num_image):
         # new
-        print("func:" + str(i))
-        print(os.path.join(test_path, imagelist[i]))
+        # print("func:" + str(i))
+        # print(os.path.join(test_path, imagelist[i]))
         img = np.array(imageio.imread(os.path.join(test_path, imagelist[i])))
         img = img / 255
         # img = trans.resize(img,target_size)

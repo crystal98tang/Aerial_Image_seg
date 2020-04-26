@@ -3,21 +3,21 @@ from utils import *
 # choose model
 model_name = "MRDFCN"
 # choose platform
-pf = "linux"    # windows / linux
+pf = "windows"    # windows / linux
 # timestamp
 time_now = time.strftime("_%Y_%m_%d__%H_%M")
 print("*" * 10 + time_now + "*" * 10)
 # itrs & steps
-itrs = 100
+itrs = 200#4600
 steps = 100
 batchs = 5
 # Choose Devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-run_mode = "test"   # train / train_GPUs / test
+run_mode = "train"   # train / train_GPUs / test
 mult_thread = False
 # test
 test_mode = 'auto'    # manual / auto
-overlay = 0
+overlay = 0.5
 if test_mode == 'manual':
     global_test_image_num = 18
     global_test_itr = 18
@@ -43,9 +43,9 @@ elif dataset == 'GID':
     valid_data_dir = "DataSet/IAILD/vaild_RGB"
     label_data_dir = "DataSet/IAILD/label_RGB"
 # log
-log_dir = "logs/log_" + model_name + time_now
+log_dir = "G:\Aerial_Image_seg_v1.0\logs\log_final_MRDFCN"     #   "logs/log_final_" + model_name  # + time_now
 #
-saved_model = "model_save/" + model_name + "_" + str(global_image_size) + ".hdf5"
+saved_model = "model_save/" + model_name + "_final_" + str(global_image_size) + ".hdf5"
 
 file_exist(run_mode, saved_model)
 
@@ -62,5 +62,5 @@ data_gen_args = dict(rotation_range=45,  # 随机角度 应为整数
                      # zoom_range=0.05,
                      horizontal_flip=True,  # 随机水平翻转
                      vertical_flip=True,  # 随机垂直翻转
-                     brightness_range=[0.5,1.5],  # 选择亮度偏移值的范围。
+                     brightness_range=[0.6,1.4],  # 选择亮度偏移值的范围。
                      fill_mode='constant')

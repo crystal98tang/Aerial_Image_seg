@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import imageio
+import cv2
 import matplotlib.pyplot as plt
 """"""
 # If can not work, add "tensorflow.python."
@@ -10,6 +11,8 @@ from tensorflow.python.keras.utils import to_categorical
 #
 # from keras.preprocessing.image import ImageDataGenerator
 # from keras.utils import to_categorical
+
+from sklearn import metrics
 #
 """"""
 seed = random.randint(1,10001)
@@ -64,3 +67,7 @@ def show(img, mask):
     for i in mask:
         imageio.imwrite(os.path.join("test_mask/", "%d_mask.jpg" % k), i.astype(np.uint8))
         k += 1
+
+
+def show_single(img):
+    imageio.imwrite(os.path.join("test_img/", "%test_img.jpg"), img.astype(np.uint8))

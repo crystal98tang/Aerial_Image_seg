@@ -31,7 +31,7 @@ def RecPreF(predict, label, size):
     print("precision:%.2f%%" % (precision * 100))
     print("F:%.2f%%" % (F * 100))
     print("---")
-    return recall,precision,F
+    return recall, precision, F
 
 
 def IouDice(y_pred, y_true):
@@ -82,7 +82,7 @@ def Recall(predict, label, size):
     except ZeroDivisionError:
         print("Warning: Recall error")
         recall = 0
-    print("recall:%.2f%%" % (recall*100))
+    print("recall:%.2f%%" % (recall * 100))
     return recall
 
 
@@ -105,7 +105,7 @@ def Precision(predict, label, size):
     except ZeroDivisionError:
         print("Warning: precision error")
         precision = 0
-    print("precision:%.2f%%" % (precision*100))
+    print("precision:%.2f%%" % (precision * 100))
     return precision
 
 
@@ -115,7 +115,7 @@ def F_measure(recall, precision):
     except ZeroDivisionError:
         print("Warning: F error")
         F = 0.0
-    print("F:%.2f%%" % (F*100))
+    print("F:%.2f%%" % (F * 100))
     return F
 
 
@@ -130,7 +130,7 @@ def mean_iou(y_pred, y_true):
     except ZeroDivisionError:
         print("Warning: IoU error")
         IoU = 0
-    print("IoU:%.2f%%" % (IoU*100))
+    print("IoU:%.2f%%" % (IoU * 100))
     return IoU
 
 
@@ -144,7 +144,7 @@ def dice(y_pred, y_true):
     except ZeroDivisionError:
         print("Warning: dice error")
         dice = 0
-    print("Dice_new:%.2f%%" % (dice*100))
+    print("Dice_new:%.2f%%" % (dice * 100))
     return dice
 
 
@@ -203,4 +203,4 @@ def mean_variance(list):
         v = np.var(list[i])
         avg = np.average(list[i])
         print("%s:%.3f±%.3f" % (i, avg, v))
-    print('-'*10)
+    print('-' * 10)

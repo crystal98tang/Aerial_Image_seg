@@ -1,13 +1,13 @@
 import args
 import tensorflow as tf
 # If can not work, add "tensorflow.python."
-from tensorflow.python.keras.models import *
-from tensorflow.python.keras.layers import *
-from tensorflow.python.keras.optimizers import *
+# from tensorflow.python.keras.models import *
+# from tensorflow.python.keras.layers import *
+# from tensorflow.python.keras.optimizers import *
 #
-# from keras.models import *
-# from keras.layers import *
-# from keras.optimizers import *
+from keras.models import *
+from keras.layers import *
+from keras.optimizers import *
 """
     Image Size
 """

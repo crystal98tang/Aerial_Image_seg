@@ -1,5 +1,5 @@
 import numpy as np
-import pydensecrf.densecrf as dcrf
+# import pydensecrf.densecrf as dcrf
 
 
 def CRFs(original_image, predicted_image, size):
@@ -16,7 +16,7 @@ def CRFs(original_image, predicted_image, size):
     d.setUnaryEnergy(U)  # add unary
 
     # 增加了与颜色无关的术语，只是位置-----会惩罚空间上孤立的小块分割,即强制执行空间上更一致的分割
-    d.addPairwiseGaussian(sxy=(3, 3), compat=5, kernel=dcrf.DIAG_KERNEL, normalization=dcrf.NORMALIZE_SYMMETRIC)
+    d.addPairwiseGaussian(sxy=(3, 3), compat=3, kernel=dcrf.DIAG_KERNEL, normalization=dcrf.NORMALIZE_SYMMETRIC)
     # 增加了颜色相关术语，即特征是(x,y,r,g,b)-----使用局部颜色特征来细化它们
     d.addPairwiseBilateral(sxy=(20, 20), srgb=(13, 13, 13), rgbim=rbg_img, compat=3,
                                kernel=dcrf.DIAG_KERNEL,
